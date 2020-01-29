@@ -1,0 +1,59 @@
+fmod GRID is
+    protecting NAT .
+  protecting STRING .
+    sorts Row Column Elt List Result Grid .
+    subsort Row Column < List .
+    subsort Elt Result < Nat .
+    subsort Grid < Row Column .
+
+    op 1 2 3 4 5 6 7 8 9 0 : -> Elt [ctor] .
+    op empty : -> Elt .
+    op s : Elt -> Elt [ctor] .
+
+
+
+   
+     --- Definisco una riga come un'insieme di tre numeri (2 da inserire e 1 già inserito essendo il risultato da ottenere)
+     --- e una stringa (l'operazione da effettuare).
+    op (___) : Elt String Elt -> Row [ctor] .
+    op (___) : String String String -> Row [ctor] .
+    --- Definisco una griglia come un insieme di tre righe
+   --- op grid : Row Row Row -> Grid [ctor] .
+    op grid(_;_;_) : Row Row Row -> Grid .
+    --- isRight controlla che gli elementi nella riga portino al risultato voluto
+  
+    op isRight(_,_) : Row Result -> Bool .
+    op result : Row -> Result .
+    op initialState : -> Grid .
+    op isValid : Elt Elt -> Bool .
+    eq initialState = grid(empty "+" empty ;
+                           "+"    ""   "*" ;
+                           empty "*" empty) .
+    vars N M : Elt .
+    var RES : Result .
+    var R : Row .
+  
+
+
+    ceq isRight(R,RES) = true
+      if result(R) = RES  . 
+
+    ceq isValid(N , M) = true
+      if N =/= M  .
+    ceq isValid(N , M) = false
+      if N == M  .
+    eq result(N  "+"  M) = N + M .
+    eq result(N  "-"  M) = sd(N , M) .
+
+    eq result(N  "*"  M) = N * M .
+
+
+endfm
+
+mod GRID-RESOLUTION is
+  protecting GRID .
+  
+  rl [write] : initialState  => grid(1 "+" empty ;
+                           "+"    ""   "*" ;
+                           empty "*" empty) .
+endm
