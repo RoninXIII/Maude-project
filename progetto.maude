@@ -1,25 +1,26 @@
 mod GRID is
     protecting NAT .
     protecting STRING .
+    
     sort Grid Place NumberToInsert Operator Result .
     subsort Operator < String .
     subsort Place < Grid .
     subsort NumberToInsert Result < Nat .
 
 
-    op 1 2 3 4 5 6 7 8 9 : -> NumberToInsert [ctor] .
+    op  0 1 2 3 4 5 6 7 8 9 : -> NumberToInsert [ctor ] .
 
-    op blank : -> Nat .
+ 
     op result : NumberToInsert Operator NumberToInsert -> Result .
     op sq : Nat Nat NumberToInsert -> Place .
-    op sq : Nat Nat Nat -> Place .
+   *** op sq : Nat Nat Nat -> Place .
     op sq : Nat Nat Operator -> Place .
     op sq : Nat Nat Result -> Place .
-    op __ : Grid Grid -> Grid [assoc comm] .
+    op __ : Grid Grid -> Grid  [assoc] .
     op write : NumberToInsert -> NumberToInsert .
     op isValid : Grid -> Bool .
     op isResult : Grid -> Bool .
-    op initial : -> Grid .
+    op initial : -> Grid [format (r! o)] .
 
 
     vars I J : Nat .
@@ -28,17 +29,10 @@ mod GRID is
     var RR1 RR3 RC1 RC3 : Result .
     var O1 O2 O3 O4 : Operator .
 
-    
-    eq write(blank) = 1 .
+    eq write(0) = 1 .
     eq write(1) = 2 .
     eq write(2) = 3 .
     eq write(3) = 4 .
-    eq write(4) = 5 .
-    eq write(5) = 6 .
-    eq write(6) = 7 .
-    eq write(7) = 8 .
-    eq write(8) = 9 .
-    eq write(9) = blank .
     --- result prende in input 4 celle (2 con i numeri inseriti, 1 con un operatore e l'ultima con il risultato da ottnere)
 
    eq result(N1,"+",N2) = N1 + N2 .
@@ -50,10 +44,14 @@ mod GRID is
    eq result(N3,"*",N4) = N3 * N4 .
   
 
-    eq isValid(sq(1,1,N1) sq(1,3,N1) G) = false .
-    eq isValid(sq(1,1,N1) sq(3,1,N1) G) = false .
-    eq isValid(sq(3,1,N3) sq(3,3,N3) G) = false .
-    eq isValid(sq(1,3,N2) sq(3,3,N2) G) = false .
+    ceq isValid(sq(1,1,N1) sq(1,3,N2) G) = false
+        if N1 == N2 .
+    ceq isValid(sq(1,1,N1) sq(3,1,N3) G) = false
+        if N1 == N3 .
+    ceq isValid(sq(3,1,N3) sq(3,3,N4) G) = false 
+        if N3 == N4  .
+    ceq isValid(sq(3,3,N4) sq(1,3,N2) G) = false
+    if N4 == N2 .
     eq isValid(G) = true [owise] .
 
     ceq isResult(sq(1,1,N1) sq(1,2,O1) sq(1,3,N2) sq(1,4,RR1) G) = false
@@ -67,33 +65,52 @@ mod GRID is
 
     eq isResult(G) = true [owise] .
     
-   eq initial = sq(1,1,blank) sq(1,2,"+") sq(1,3,blank) sq(1,4,11)
-                sq(2,1,"*") sq(2,2,blank) sq(2,3,"+") sq(2,4,blank)
-                sq(3,1,blank) sq(3,2,"*") sq(3,3,blank) sq(3,4,45)
-                sq(4,1,20) sq(4,2,blank) sq(4,3,16) sq(4,4,blank)
+   eq initial = sq(1,1,0) sq(1,2,"+") sq(1,3,2) sq(1,4,11)
+                sq(2,1,"*") sq(2,2,0) sq(2,3,"+") sq(2,4,0)
+                sq(3,1,0) sq(3,2,"*") sq(3,3,0) sq(3,4,45)
+                sq(4,1,20) sq(4,2,0) sq(4,3,16) sq(4,4,0)
                  .     
- 
 
-   rl [write-row] : sq(1,J,N1) sq(1,J,O1) sq(1,J,N2) sq(1,J,RR1)
-                     sq(2,J,O2) sq(2,J,blank) sq(2,J,O3) sq(2,J,blank)
-                     sq(3,J,N3) sq(3,J,O4) sq(3,J,N4) sq(3,J,RR3)
-                     sq(4,J,RC1) sq(4,J,blank) sq(4,J,RC3) sq(4,J,blank) => 
-                     sq(1,J,write(N1)) sq(1,J,O1) sq(1,J,write(N2)) sq(1,J,11)
-                     sq(2,J,O2) sq(2,J,blank) sq(2,J,O3) sq(2,J,blank)
-                     sq(3,J,write(N3)) sq(3,J,O4) sq(3,J,write(N4)) sq(3,J,45)
-                     sq(4,J,20) sq(4,J,blank) sq(4,J,16) sq(4,J,blank)
-                         .
+rl [write-cell] : sq(I,J,N1) sq(I,J,O1) sq(I,J,N2) sq(I,J,RR1)
+                     sq(I,J,O2) sq(I,J,0) sq(I,J,O3) sq(I,J,0)
+                     sq(I,J,N3) sq(I,J,O4) sq(I,J,N4) sq(I,J,RR3)
+                     sq(I,J,RC1) sq(I,J,0) sq(I,J,RC3) sq(I,J,0) => 
+                     sq(I,J,write(N1)) sq(I,J,O1) sq(I,J,N2) sq(I,J,11)
+                     sq(I,J,O2) sq(I,J,0) sq(I,J,O3) sq(I,J,0)
+                     sq(I,J,N3) sq(I,J,O4) sq(I,J,N4) sq(I,J,45)
+                     sq(I,J,20) sq(I,J,0) sq(I,J,16) sq(I,J,0) .
 
-    rl [write-column] : sq(I,1,N1) sq(I,2,O1) sq(I,3,N2) sq(I,4,RR1)
-                     sq(I,1,O2) sq(I,2,blank) sq(I,3,O3) sq(I,4,blank)
-                     sq(I,1,N3) sq(I,2,O4) sq(I,3,N4) sq(I,4,RR3)
-                     sq(I,1,RC1) sq(I,2,blank) sq(I,3,RC3) sq(I,4,blank) => 
-                     sq(I,1,write(N1)) sq(I,2,O1) sq(I,3,write(N2)) sq(I,4,11)
-                     sq(I,1,O2) sq(I,2,blank) sq(I,3,O3) sq(I,4,blank)
-                     sq(I,1,write(N3)) sq(I,2,O4) sq(I,3,write(N4)) sq(I,4,45)
-                     sq(I,1,20) sq(I,2,blank) sq(I,3,16) sq(I,4,blank)
-                         .                     
+***   rl [write-cell] : sq(1,J,N1) sq(1,J,O1) sq(1,J,N2) sq(1,J,RR1)
+***                     sq(2,J,O2) sq(2,J,0) sq(2,J,O3) sq(2,J,0)
+***                     sq(3,J,N3) sq(3,J,O4) sq(3,J,N4) sq(3,J,RR3)
+***                     sq(4,J,RC1) sq(4,J,0) sq(4,J,RC3) sq(4,J,0) => 
+***                     sq(1,J,write(N1)) sq(1,J,O1) sq(1,J,N2) sq(1,J,11)
+***                     sq(2,J,O2) sq(2,J,0) sq(2,J,O3) sq(2,J,0)
+***                     sq(3,J,N3) sq(3,J,O4) sq(3,J,N4) sq(3,J,45)
+***                     sq(4,J,20) sq(4,J,0) sq(4,J,16) sq(4,J,0)
+***                         .
 
---- search initial =>* G:Grid such that isResult(G: Grid) .                         
+***   rl [write-row] : sq(1,J,N1) sq(1,J,O1) sq(1,J,N2) sq(1,J,RR1)
+***                     sq(2,J,O2) sq(2,J,0) sq(2,J,O3) sq(2,J,0)
+***                     sq(3,J,N3) sq(3,J,O4) sq(3,J,N4) sq(3,J,RR3)
+***                     sq(4,J,RC1) sq(4,J,0) sq(4,J,RC3) sq(4,J,0) => 
+***                     sq(1,J,write(N1)) sq(1,J,O1) sq(1,J,write(N2)) sq(1,J,11)
+***                     sq(2,J,O2) sq(2,J,0) sq(2,J,O3) sq(2,J,0)
+***                     sq(3,J,write(N3)) sq(3,J,O4) sq(3,J,write(N4)) sq(3,J,45)
+***                     sq(4,J,20) sq(4,J,0) sq(4,J,16) sq(4,J,0)
+***                         .
+
+***    rl [write-column] : sq(I,1,N1) sq(I,2,O1) sq(I,3,N2) sq(I,4,RR1)
+***                     sq(I,1,O2) sq(I,2,0) sq(I,3,O3) sq(I,4,0)
+***                     sq(I,1,N3) sq(I,2,O4) sq(I,3,N4) sq(I,4,RR3)
+***                     sq(I,1,RC1) sq(I,2,0) sq(I,3,RC3) sq(I,4,0) => 
+***                     sq(I,1,write(N1)) sq(I,2,O1) sq(I,3,write(N2)) sq(I,4,11)
+***                     sq(I,1,O2) sq(I,2,0) sq(I,3,O3) sq(I,4,0)
+***                     sq(I,1,write(N3)) sq(I,2,O4) sq(I,3,write(N4)) sq(I,4,45)
+***                     sq(I,1,20) sq(I,2,0) sq(I,3,16) sq(I,4,0)
+***                         .                     
+
+--- search initial =>* G:Grid such that isResult(G: Grid) .          
+--- rew [1] initial .               
 endm
 
