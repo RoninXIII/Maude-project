@@ -1,38 +1,64 @@
 mod GRID is
     protecting NAT .
     protecting STRING .
-    
-    sort Grid Place NumberToInsert Operator Result .
-    subsort Operator < String .
+    protecting BOOL .
+    sort Grid Place NumberToInsert Coordinate Result .
     subsort Place < Grid .
-    subsort NumberToInsert Result < Nat .
+    subsort Result NumberToInsert Coordinate < Nat .
 
-
-    op  0 1 2 3 4 5 6 7 8 9 : -> NumberToInsert [ctor ] .
-
- 
-    op result : NumberToInsert Operator NumberToInsert -> Result .
-    op sq : Nat Nat NumberToInsert -> Place .
-   *** op sq : Nat Nat Nat -> Place .
-    op sq : Nat Nat Operator -> Place .
-    op sq : Nat Nat Result -> Place .
+    op 1 2 3 4 : -> Coordinate [ctor] .
+    op empty : -> NumberToInsert [format (b! o)] .
+    op result : Nat String Nat -> Result [format (r! o)] .
+    op sq : Coordinate Coordinate NumberToInsert -> Place .
+    op sq : Coordinate Coordinate String -> Place  . *** La stringa indica sia una cella vuota sia una cella contenente un operatore
+    op sq : Coordinate Coordinate Result -> Place  .
     op __ : Grid Grid -> Grid  [assoc] .
-    op write : NumberToInsert -> NumberToInsert .
+    op write : NumberToInsert NumberToInsert -> NumberToInsert . *** Sostituisce un numero già presente
+    
+    ***op row : Grid -> Grid .
+   *** op column : Grid -> Grid .
     op isValid : Grid -> Bool .
     op isResult : Grid -> Bool .
-    op initial : -> Grid [format (r! o)] .
+    op initial : -> Grid  .
 
 
-    vars I J : Nat .
-    vars N1 N2 N3 N4 : NumberToInsert .
+    vars I J : Coordinate . *** Coordinata
+    vars N1 N2 N3 N4 : NumberToInsert . *** I numeri possibili che si possono inserire. Sono tanti quante le celle "scrivibili".
     var G : Grid .
-    var RR1 RR3 RC1 RC3 : Result .
-    var O1 O2 O3 O4 : Operator .
+    var RR1 RR3 RC1 RC3 : Result . *** I risultati corrispondenti alle righe 1-3 ed alle colonne 1-3.
+    var O1 O2 O3 O4 : String . *** Gli operatori
 
-    eq write(0) = 1 .
-    eq write(1) = 2 .
-    eq write(2) = 3 .
-    eq write(3) = 4 .
+    ***eq row(sq(I,J,N1) sq(I,J,O1) sq(I,J,N2) G) =  .
+    
+    ceq isValid(sq(I,J,N1) sq(I,J,N2) G) = false
+        if N1 == N2 .
+    eq isValid(sq(I,J,N1) sq(I,J,N2) G) = true [owise] .    
+
+    ceq isValid(sq(I,J,N1) sq(I,J,N3) G) = false
+        if N1 == N3 .
+    eq isValid(sq(I,J,N1) sq(I,J,N3) G) = true [owise] . 
+
+    ceq isValid(sq(I,J,N3) sq(I,J,N4) G) = false 
+        if N3 == N4  .
+    eq isValid(sq(I,J,N3) sq(I,J,N4) G) = true [owise] . 
+
+    ceq isValid(sq(I,J,N4) sq(I,J,N2) G) = false
+        if N4 == N2 .
+
+    eq isValid(sq(I,J,N4) sq(I,J,N2) G) = true [owise] . 
+
+   ceq write(N1,N2) = 1
+       if N1 == empty  . 
+
+   ceq write(N1,N2) = N1 + 1
+       if N1 =/= empty /\ isValid(sq(1,1,N1) sq(1,3,N2)) == true .
+    
+    ceq write(N1,N2) = write(2,N2)
+       if N1 == empty /\ isValid(sq(1,1,1) sq(1,3,N2)) == false .
+
+    ceq write(N1,N2) = write(N1 + 1 ,N2)
+       if N1 =/= empty /\ isValid(sq(1,1,N1) sq(1,3,N2)) == false .   
+       
     --- result prende in input 4 celle (2 con i numeri inseriti, 1 con un operatore e l'ultima con il risultato da ottnere)
 
    eq result(N1,"+",N2) = N1 + N2 .
@@ -44,15 +70,7 @@ mod GRID is
    eq result(N3,"*",N4) = N3 * N4 .
   
 
-    ceq isValid(sq(1,1,N1) sq(1,3,N2) G) = false
-        if N1 == N2 .
-    ceq isValid(sq(1,1,N1) sq(3,1,N3) G) = false
-        if N1 == N3 .
-    ceq isValid(sq(3,1,N3) sq(3,3,N4) G) = false 
-        if N3 == N4  .
-    ceq isValid(sq(3,3,N4) sq(1,3,N2) G) = false
-    if N4 == N2 .
-    eq isValid(G) = true [owise] .
+    
 
     ceq isResult(sq(1,1,N1) sq(1,2,O1) sq(1,3,N2) sq(1,4,RR1) G) = false
         if result(N1,O1,N2) =/= RR1 .
@@ -65,20 +83,12 @@ mod GRID is
 
     eq isResult(G) = true [owise] .
     
-   eq initial = sq(1,1,0) sq(1,2,"+") sq(1,3,2) sq(1,4,11)
-                sq(2,1,"*") sq(2,2,0) sq(2,3,"+") sq(2,4,0)
-                sq(3,1,0) sq(3,2,"*") sq(3,3,0) sq(3,4,45)
-                sq(4,1,20) sq(4,2,0) sq(4,3,16) sq(4,4,0)
+    eq initial = sq(1,1,empty) sq(1,2,"+") sq(1,3,empty) sq(1,4,11)
+                sq(2,1,"*") sq(2,2,empty) sq(2,3,"+") sq(2,4,empty)
+                sq(3,1,empty) sq(3,2,"*") sq(3,3,empty) sq(3,4,45)
+                sq(4,1,20) sq(4,2,empty) sq(4,3,16) sq(4,4,empty)
                  .     
 
-rl [write-cell] : sq(I,J,N1) sq(I,J,O1) sq(I,J,N2) sq(I,J,RR1)
-                     sq(I,J,O2) sq(I,J,0) sq(I,J,O3) sq(I,J,0)
-                     sq(I,J,N3) sq(I,J,O4) sq(I,J,N4) sq(I,J,RR3)
-                     sq(I,J,RC1) sq(I,J,0) sq(I,J,RC3) sq(I,J,0) => 
-                     sq(I,J,write(N1)) sq(I,J,O1) sq(I,J,N2) sq(I,J,11)
-                     sq(I,J,O2) sq(I,J,0) sq(I,J,O3) sq(I,J,0)
-                     sq(I,J,N3) sq(I,J,O4) sq(I,J,N4) sq(I,J,45)
-                     sq(I,J,20) sq(I,J,0) sq(I,J,16) sq(I,J,0) .
 
 ***   rl [write-cell] : sq(1,J,N1) sq(1,J,O1) sq(1,J,N2) sq(1,J,RR1)
 ***                     sq(2,J,O2) sq(2,J,0) sq(2,J,O3) sq(2,J,0)
