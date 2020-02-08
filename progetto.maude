@@ -1,16 +1,17 @@
 mod GRID is
     protecting INT .
+    protecting NAT .
     protecting STRING .
     protecting BOOL .
-    sort Grid Place Coordinate .
+    sort Grid Place  .
     subsort Place < Grid .
-    subsort Coordinate < Int .
+ 
     
-    op 1 2 3 4 : -> Coordinate [ctor] .
+   
     op empty : -> Int [ctor format (b! o)] .
     op result : Grid -> Int [ctor format (r! o)] .
-    op sq : Coordinate Coordinate Int -> Place .
-    op sq : Coordinate Coordinate String -> Place  . *** La stringa indica sia una cella vuota sia una cella contenente un operatore
+    op sq : Nat Nat Int -> Place [ctor format (r! o)] .
+    op sq : Nat Nat String -> Place [ctor format (r! o)] . *** La stringa indica sia una cella vuota sia una cella contenente un operatore
 
     op __ : Grid Grid -> Grid  [assoc] .
     op write : Int  -> Int . *** Sostituisce un numero già presente
@@ -22,71 +23,88 @@ mod GRID is
     op initial : -> Grid  .
 
 
-    vars I J : Coordinate . *** Coordinata
+    vars I1 I2 I3 I4 J1 J2 J3 J4 : Nat . *** Coordinata
     vars N1 N2 N3 N4 : Int . *** I numeri possibili che si possono inserire. Sono tanti quante le celle "scrivibili".
     var G : Grid .
     var RR1 RR3 RC1 RC3 : Int . *** I risultati corrispondenti alle righe 1-3 ed alle colonne 1-3.
     var O1 O2 O3 O4 : String . *** Gli operatori
 
+    *** Si scrive la prima cella ...
+    ***  red isValid(write(sq(1,1,empty)) sq(1,3,1) G) .
+    ceq write(N1) = 1
+        if N1 == empty .
+    eq write(N1) = s(N1) [owise] .
+
+    ceq write(N2) = 1
+        if N2 == empty .
+    eq write(N2) = s(N2) [owise] .
+
+    ceq write(N3) = 1
+        if N3 == empty .
+    eq write(N3) = s(N3) [owise] .
+
+    ceq write(N3) = 1
+        if N3 == empty .
+    eq write(N3) = s(N3) [owise] .
+
+    eq write(9) = empty .
+      
+
     ***eq row(sq(I,J,N1) sq(I,J,O1) sq(I,J,N2) G) =  .
+    *** red isValid(sq(1,1,3) sq(1,3,2) G) .
+    ceq isValid(sq(I1,J1,N1) sq(I1,J3,N2) G) = false 
+        if N1 == N2 .
+    ceq isValid(sq(I1,J1,N1) sq(I3,J1,N3) G) = false 
+        if N1 == N3 .
+    ceq isValid(sq(I3,J1,N3) sq(I3,J3,N4) G) = false 
+        if N3 == N4 .
+    ceq isValid(sq(I3,J3,N4) sq(I1,J3,N2) G) = false 
+        if N4 == N2 .            
     
-    eq isValid(sq(I,J,1) sq(I,J,1) G) = false .
-    eq isValid(sq(I,J,2) sq(I,J,2) G) = false .
-    eq isValid(sq(I,J,3) sq(I,J,3) G) = false .
-    eq isValid(sq(I,J,4) sq(I,J,4) G) = false .
-    eq isValid(sq(I,J,5) sq(I,J,5) G) = false .
-    eq isValid(sq(I,J,6) sq(I,J,6) G) = false .
-    eq isValid(sq(I,J,7) sq(I,J,7) G) = false .
-    eq isValid(sq(I,J,8) sq(I,J,8) G) = false .
-    eq isValid(sq(I,J,9) sq(I,J,9) G) = false .
     eq isValid(G) = true [owise].
     *** red isValid(sq(I,J,write(empty)) sq(I,J,1) G) .
-    eq write(empty) = 1 .
-    eq write(1) = 2 .
-    eq write(2) = 3 .
-    eq write(3) = 4 .
-    eq write(4) = 5 .
-    eq write(5) = 6 .
-    eq write(6) = 4 .
-    eq write(7) = 5 .
-    eq write(8) = 9 .
-    eq write(9) = empty .
+
+
+    *** Se la prima cella è stata già scritta si passa alla scrittura della seconda:
+    *** questa può essere scritta SOLO se la prima lo è già stata.
+   *** ceq write(sq(I,J,N1) sq(I,J,O1) sq(I,J,N2) sq(I,J,RR1) G) = sq(I,J,N1) sq(I,J,s(1))
+    ***    if N1 == 1 /\ N2 == empty .        
+
+  
     
  
 
 
     --- result prende in input 4 celle (2 con i numeri inseriti, 1 con un operatore e l'ultima con il risultato da ottnere)
 
-   eq result(sq(I,J,N1) sq(I,J,"+") sq(I,J,N2) G) = N1 + N2 .
-   eq result(sq(I,J,N1) sq(I,J,"+") sq(I,J,N3) G) = N1 + N3 .
-   eq result(sq(I,J,N2) sq(I,J,"+") sq(I,J,N4) G) = N2 + N4 .
-   eq result(sq(I,J,N3) sq(I,J,"+") sq(I,J,N4) G) = N3 + N4 .
+   eq result(sq(I1,J1,N1) sq(I1,J2,"+") sq(I1,J3,N2) G) = N1 + N2 .
+   eq result(sq(I1,J1,N1) sq(I2,J1,"+") sq(I3,J1,N3) G) = N1 + N3 .
+   eq result(sq(I1,J3,N2) sq(I2,J3,"+") sq(I3,J3,N4) G) = N2 + N4 .
+   eq result(sq(I3,J1,N3) sq(I3,J2,"+") sq(I3,J3,N4) G) = N3 + N4 .
 
-   eq result(sq(I,J,N1) sq(I,J,"*") sq(I,J,N2) G) = N1 * N2 .
-   eq result(sq(I,J,N1) sq(I,J,"*") sq(I,J,N3) G) = N1 * N3 .
-   eq result(sq(I,J,N2) sq(I,J,"*") sq(I,J,N4) G) = N2 * N4 .
-   eq result(sq(I,J,N3) sq(I,J,"*") sq(I,J,N4) G) = N3 * N4 .
+   eq result(sq(I1,J1,N1) sq(I1,J2,"*") sq(I1,J3,N2) G) = N1 * N2 .
+   eq result(sq(I1,J1,N1) sq(I2,J1,"*") sq(I3,J1,N3) G) = N1 * N3 .
+   eq result(sq(I1,J3,N2) sq(I2,J3,"*") sq(I3,J3,N4) G) = N2 * N4 .
+   eq result(sq(I3,J1,N3) sq(I3,J2,"*") sq(I3,J3,N4) G) = N3 * N4 .
 
-
-
-   eq result(sq(I,J,N1) sq(I,J,"-") sq(I,J,N2) G) = N1 - N2 .
-   eq result(sq(I,J,N1) sq(I,J,"-") sq(I,J,N3) G) = N1 - N3 .
-   eq result(sq(I,J,N2) sq(I,J,"-") sq(I,J,N4) G) = N2 - N4 .
-   eq result(sq(I,J,N3) sq(I,J,"-") sq(I,J,N4) G) = N3 - N4 .
+   eq result(sq(I1,J1,N1) sq(I1,J2,"-") sq(I1,J3,N2) G) = N1 - N2 .
+   eq result(sq(I1,J1,N1) sq(I2,J1,"-") sq(I3,J1,N3) G) = N1 - N3 .
+   eq result(sq(I1,J3,N2) sq(I2,J3,"-") sq(I3,J3,N4) G) = N2 - N4 .
+   eq result(sq(I3,J1,N3) sq(I3,J2,"-") sq(I3,J3,N4) G) = N3 - N4 .
 
     
+   *** red isResult(sq(1,1,8) sq(1,2,"*") sq(1,3,9) sq(1,4,81) G) 
+    ceq isResult(sq(I1,J1,N1) sq(I1,J2,O1) sq(I1,J3,N2) sq(I1,J4,RR1) G) = false
+        if result(sq(I1,J1,N1) sq(I1,J2,O1) sq(I1,J3,N2) G) =/= RR1 .
 
-    ceq isResult(sq(I,J,N1) sq(I,J,O1) sq(I,J,N2) sq(I,J,RR1) G) = false
-        if result(sq(I,J,N1) sq(I,J,O1) sq(I,J,N2) G) =/= RR1 .
+    ceq isResult(sq(I3,J1,N3) sq(I3,J2,O2) sq(I3,J3,N4) sq(I3,J4,RR3) G) = false
+        if result(sq(I3,J1,N3) sq(I3,J2,O2) sq(I3,J3,N4) G) =/= RR3 .
 
-    ceq isResult(sq(I,J,N3) sq(I,J,O2) sq(I,J,N4) sq(I,J,RR3) G) = false
-        if result(sq(I,J,N3) sq(I,J,O2) sq(I,J,N4) G) =/= RR3 .
+    ceq isResult(sq(I1,J1,N1) sq(I2,J1,O3) sq(I3,J1,N3) sq(I4,J1,RC1) G) = false
+        if result(sq(I1,J1,N1) sq(I2,J1,O3) sq(I3,J1,N3) G) =/= RC1 .
 
-    ceq isResult(sq(I,J,N1) sq(I,J,O3) sq(I,J,N3) sq(I,J,RC1) G) = false
-        if result(sq(I,J,N1) sq(I,J,O3) sq(I,J,N3) G) =/= RC1 .
-        
-    ceq isResult(sq(I,J,N2) sq(I,J,O4) sq(I,J,N4) sq(I,J,RC3) G) = false
-        if result(sq(I,J,N2) sq(I,J,O4) sq(I,J,N4) G) =/= RC3 .
+    ceq isResult(sq(I1,J3,N2) sq(I2,J3,O4) sq(I3,J3,N4) sq(I4,J3,RC3) G) = false
+        if result(sq(I1,J3,N2) sq(I2,J3,O4) sq(I3,J3,N4) G) =/= RC3 .
 
     eq isResult(G) = true [owise] .
     
@@ -96,16 +114,10 @@ mod GRID is
                 sq(4,1,20) sq(4,2,empty) sq(4,3,16) sq(4,4,empty)
                  .     
 
-
-   rl [write-row] : sq(1,J,N1) sq(1,J,O1) sq(1,J,N2) sq(1,J,RR1)
-                     sq(2,J,O2) sq(2,J,0) sq(2,J,O3) sq(2,J,0)
-                     sq(3,J,N3) sq(3,J,O4) sq(3,J,N4) sq(3,J,RR3)
-                     sq(4,J,RC1) sq(4,J,0) sq(4,J,RC3) sq(4,J,0) => 
-                     sq(1,J,write(N1)) sq(1,J,O1) sq(1,J,N2) sq(1,J,11)
-                     sq(2,J,O2) sq(2,J,0) sq(2,J,O3) sq(2,J,0)
-                     sq(3,J,N3) sq(3,J,O4) sq(3,J,N4) sq(3,J,45)
-                     sq(4,J,20) sq(4,J,0) sq(4,J,16) sq(4,J,0)
-                         .
+crl [write-row] : sq(I1,1,N1) sq(I1,2,O1) sq(I1,3,N2) sq(I1,4,RR1) =>
+                 sq(I1,1,write(N1)) sq(I1,2,"+") sq(I1,3,write(N2)) sq(I1,4,RR1)
+                 if N2 =/= s(N1) 
+                  .
 
                                           
 
