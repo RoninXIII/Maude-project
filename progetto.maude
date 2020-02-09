@@ -21,7 +21,7 @@ mod GRID is
     op isValid : Grid -> Bool . --- Check if a Row or a Column is valid (if contains thwo cells with the same number) .
     op isResult : Grid -> Bool . --- Check if the result of a Row or a Column is the one to reach .
     op initial : -> Grid  . --- Initial grid.
-
+  
 
     vars I1 I2 I3 I4 J1 J2 J3 J4 : Nat . *** Coordinates
     vars N1 N2 N3 N4 : Int . *** I numeri possibili che si possono inserire. Sono tanti quante le celle "scrivibili".
@@ -53,11 +53,11 @@ mod GRID is
 
     
     ceq isValid(sq(I1,J1,N1) sq(I1,J2,O) sq(I1,J3,N2) sq(I1,J4,R) G) = false 
-        if N1 == N2   .
+        if N1 == N2 /\ N1 =/= empty /\ N2 =/= empty  .
    
 
     ceq isValid(sq(I1,J1,N1) sq(I2,J1,O) sq(I3,J1,N3) sq(I4,J1,R) G) = false 
-        if N1 == N3  .      
+        if N1 == N3 /\ N1 =/= empty /\ N3 =/= empty .      
     
     eq isValid(G) = true [owise].
     
@@ -73,23 +73,28 @@ mod GRID is
     ceq isResult(sq(I1,J1,N1) sq(I1,J2,O) sq(I1,J3,N2) sq(I1,J4,R) G) = true
         if result(N1,O,N2) == R .
 
+
     ceq isResult(sq(I1,J1,N1) sq(I2,J1,O) sq(I3,J1,N3) sq(I4,J1,R) G) = true 
         if result(N1,O,N3) == R  . 
 
+    
     eq isResult(G) = false [owise] .
     
-    eq initial = sq(1,1,empty) sq(1,2,"+") sq(1,3,7) sq(1,4,11)
+    eq initial = sq(1,1,empty) sq(1,2,"+") sq(1,3,empty) sq(1,4,11)
                  sq(2,1,"*") sq(2,2,empty) sq(2,3,"+") sq(2,4,empty)
-                 sq(3,1,empty) sq(3,2,"*") sq(3,3,9) sq(3,4,45)
+                 sq(3,1,empty) sq(3,2,"*") sq(3,3,empty) sq(3,4,45)
                  sq(4,1,20) sq(4,2,empty) sq(4,3,16) sq(4,4,empty)
                  .     
 
-   
+
     crl [write-row] : sq(I1,1,N1) sq(I1,2,O) sq(I1,3,N2) sq(I1,4,R) =>
-                 sq(I1,1,write(N1)) sq(I1,2,"+") sq(I1,3,write(N2)) sq(I1,4,R)
-                 if s(N1) =/= empty /\ s(N2) =/= empty  
+                 sq(I1,1,write(N1)) sq(I1,2,O) sq(I1,3,N2) sq(I1,4,R)
+                 if write(N1) =/= empty
                   .
-        
+    crl [write-column] : sq(I1,1,N1) sq(I1,2,O) sq(I1,3,N2) sq(I1,4,R) =>
+                 sq(I1,1,N1) sq(I1,2,O) sq(I1,3,write(N2)) sq(I1,4,R)
+                 if write(N1) == empty /\ write(N2) =/= empty
+                  .    
 ---crl [write-column] : sq(1,J1,N1) sq(2,J1,O) sq(3,J1,N2) sq(4,J1,R) =>
 ---                    sq(1,J1,write(N1)) sq(2,J1,O) sq(3,J1,write(N2)) sq(4,J1,R) 
 ---                    if s(N1) =/= empty /\ s(N2) =/= empty     
