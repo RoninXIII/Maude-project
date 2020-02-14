@@ -1,0 +1,153 @@
+mod GRID is
+    protecting INT .
+    protecting NAT .
+    protecting STRING .
+    protecting BOOL .
+    sort Grid Place NumberToinsert  .
+    subsort Place < Grid . 
+    subsort Int < NumberToinsert  .
+    
+   
+    op empty : -> Grid [ctor format (b! o)] . --- Value indicating an empty value inside a cell
+    op result : Int String Int String Int -> Int [ format (r! o)] . --- Calculate a result 
+    op sq : Nat Nat NumberToinsert -> Place [ format (r! o)] . --- Cell containing a coordinate and a number
+    op sq : Nat Nat Nat -> Place [ format (r! o)] .
+    op sq : Nat Nat String -> Place [ format (r! o)] . --- Cell containing a coordinate and an operator (string)
+    op 0 1 2 3 4 5 6 7 8 9 : -> NumberToinsert [ctor ] .
+
+    op __ : Grid Grid -> Grid  [ctor assoc comm id: empty  ] . --- A grid is thought as a sequence of squares .
+    op write : Int  -> Int . --- Change the given number in one another
+    
+
+    op isValid : Grid -> Bool . --- Check if a Row or a Column is valid (if contains thwo cells with the same number) .
+    op isResult : Grid -> Bool   . --- Check if the result of a Row or a Column is the one to reach .
+    op initial : -> Grid  . --- Initial grid.
+    
+
+    vars I1 I2 I3 I4 I5 I6 J1 J2 J3 J4 J5 J6 : Nat . *** Coordinates
+    vars N1 N2 N3 N4 : NumberToinsert . *** I numeri possibili che si possono inserire. Sono tanti quante le celle "scrivibili".
+    var G : Grid .
+    var R R2 : Nat . *** I risultati corrispondenti alle righe 1-3 ed alle colonne 1-3.
+    var O O2 : String . *** Gli operatori
+
+    *** Si scrive la prima cella ...
+    ***  red isValid(write(sq(1,1,empty)) sq(1,3,1) G) .
+
+    ceq write(N1) = 1
+        if N1 == 0 .
+    eq write(N1) = s(N1) [owise] .
+
+    ceq write(N2) = 1
+        if N2 == 0 .
+    eq write(N2) = s(N2) [owise] .
+
+    ceq write(N3) = 1
+        if N3 == 0 .
+    eq write(N3) = s(N3) [owise] .
+
+    ceq write(N4) = 1
+        if N4 == 0 .
+    eq write(N4) = s(N4) [owise] .
+
+    eq write(9) = 0 .
+      
+
+    
+    ceq isValid(sq(I1,J1,N1) sq(I1,J2,O) sq(I1,J3,N2) sq(I1,J4,O2) sq(I1,J5,N3) sq(I1,J6,R) G) = false 
+        if N1 == N2 /\ N1 == N3 /\ N1 =/= 0 /\ N2 =/= 0 /\ N3 =/= 0  .
+   
+
+    ceq isValid(sq(I1,J1,N1) sq(I2,J1,O) sq(I3,J1,N2) sq(I4,J1,O2) sq(I5,J1,N3) sq(I6,J1,R) G) = false 
+        if N1 == N2 /\ N1 == N3 /\ N1 =/= 0 /\ N2 =/= 0 /\ N3 =/= 0  .      
+    
+    eq isValid(G) = true [owise] .
+    
+
+
+   eq result(N1,"+",N2,"+",N3) = N1 + N2 + N3 .
+   eq result(N1,"+",N2,"*",N3) = N1 + N2 * N3 .
+   eq result(N1,"+",N2,"-",N3) = sd(N1 + N2,N3) .
+
+   
+   eq result(N1,"*",N2,"*",N3) = N1 * N2 * N3 .
+   eq result(N1,"*",N2,"+",N3) = N1 * N2 + N3 .
+   eq result(N1,"*",N2,"-",N3) = sd(N1 * N2,N3) .
+
+   eq result(N1,"-",N2,"-",N3) = sd(sd(N1,N2),N3) .
+   eq result(N1,"-",N2,"+",N3) = sd(N1,N2) + N3 .
+   eq result(N1,"-",N2,"*",N3) = sd(N1,N2 * N3) .
+   
+
+    --- Ritorna true se una delle due righe porta ad un risultato
+  
+    ceq isResult(sq(I1,J1,N1) sq(I1,J2,O) sq(I1,J3,N2) sq(I1,J4,O2) sq(I1,J5,N3) sq(I1,J6,R) G) = false 
+        if result(N1,O,N2,O2,N3) =/= R  and  N1 <= 9 and N2 <= 9 and N3 <= 9  . 
+
+   
+    --- Ritorna true se una delle due colonne porta ad un risultato
+    ceq isResult(sq(I1,J1,N1) sq(I2,J1,O) sq(I3,J1,N2) sq(I4,J1,O2) sq(I5,J1,N3) sq(I6,J1,R)  G) = false 
+        if result(N1,O,N2,O2,N3) =/= R and N1 <= 9 and N2 <= 9 and N3 <= 9   .
+
+    eq isResult(G) = true [owise] .
+    
+    
+    eq initial = sq(1,1,4)   sq(1,2,"+")   sq(1,3,7)   sq(1,4,"*")   sq(1,5,2)   sq(1,6,18)
+                 sq(2,1,"*") empty         sq(2,3,"+") empty         sq(2,5,"*") empty
+                 sq(3,1,0)   sq(3,2,"-")   sq(3,3,0)   sq(3,4,"*")   sq(3,5,0)   sq(3,6,69)
+                 sq(4,1,"+") empty         sq(4,3,"-") empty         sq(4,5,"*") empty
+                 sq(5,1,0)   sq(5,2,"*")   sq(5,3,0)   sq(5,4,"*")   sq(5,5,0)   sq(5,6,12)
+                 sq(6,1,13)  empty         sq(6,3,13)  empty         sq(6,5,108) empty
+                 .     
+    ---eq initial = sq(1,1,4)   sq(1,2,"+")   sq(1,3,7)   sq(1,4,"*")   sq(1,5,2)   sq(1,6,18)
+    ---             sq(2,1,"*") sq(2,2,empty) sq(2,3,"+") sq(2,4,empty) sq(2,5,"*") sq(2,6,empty)
+    ---             sq(3,1,3)   sq(3,2,"-")   sq(3,3,8)   sq(3,4,"*")   sq(3,5,9)   sq(3,6,69)
+    ---             sq(4,1,"+") sq(4,2,empty) sq(4,3,"-") sq(4,4,empty) sq(4,5,"*") sq(4,6,empty)
+    ---             sq(5,1,1)   sq(5,2,"*")   sq(5,3,2)   sq(5,4,"*")   sq(5,5,6)   sq(5,6,12)
+    ---             sq(6,1,13)  sq(6,2,empty) sq(6,3,13)  sq(6,4,empty) sq(6,5,108)  sq(6,6,empty)
+    ---             . 
+
+    crl [write-row] : sq(I1,1,N1) sq(I1,2,O) sq(I1,3,N2) sq(I1,4,O2) sq(I1,5,N3) sq(I1,6,R)  =>
+                 sq(I1,1,write(N1)) sq(I1,2,O) sq(I1,3,N2) sq(I1,4,O2) sq(I1,5,N3)  sq(I1,6,R)  
+                 if write(N1) =/= 0
+                  .
+    crl [write-row2] : sq(I1,1,N1) sq(I1,2,O) sq(I1,3,N2) sq(I1,4,O2) sq(I1,5,N3) sq(I1,6,R)  =>
+                 sq(I1,1,N1) sq(I1,2,O) sq(I1,3,write(N2)) sq(I1,4,O2) sq(I1,5,N3)  sq(I1,6,R)  
+                 if write(N2) =/= 0
+                  .
+    crl [write-row3] : sq(I1,1,N1) sq(I1,2,O) sq(I1,3,N2) sq(I1,4,O2) sq(I1,5,N3) sq(I1,6,R)  =>
+                 sq(I1,1,N1) sq(I1,2,O) sq(I1,3,N2) sq(I1,4,O2) sq(I1,5,write(N3))  sq(I1,6,R)  
+                 if write(N3) =/= 0
+                  .  
+
+    crl [write-column] : sq(1,J1,N1) sq(2,J1,O) sq(3,J1,N2) sq(4,J1,O2) sq(5,J1,N3) sq(6,J1,R)  =>
+                 sq(1,J1,write(N1)) sq(2,J1,O) sq(3,J1,N2) sq(4,J1,O2) sq(5,J1,N3) sq(6,J1,R) 
+                 if write(N1) == 0 
+                  .
+    crl [write-column2] : sq(1,J1,N1) sq(2,J1,O) sq(3,J1,N2) sq(4,J1,O2) sq(5,J1,N3) sq(6,J1,R)  =>
+                 sq(1,J1,N1) sq(2,J1,O) sq(3,J1,write(N2)) sq(4,J1,O2) sq(5,J1,N3) sq(6,J1,R) 
+                 if write(N2) == 0 
+                  .
+    crl [write-column3] : sq(1,J1,N1) sq(2,J1,O) sq(3,J1,N2) sq(4,J1,O2) sq(5,J1,N3) sq(6,J1,R)  =>
+                 sq(1,J1,N1) sq(2,J1,O) sq(3,J1,N2) sq(4,J1,O2) sq(5,J1,write(N3)) sq(6,J1,R) 
+                 if write(N3) == 0 
+                  .
+                      
+---crl [write-column] : sq(1,J1,N1) sq(2,J1,O) sq(3,J1,N2) sq(4,J1,R) =>
+---                    sq(1,J1,write(N1)) sq(2,J1,O) sq(3,J1,write(N2)) sq(4,J1,R) 
+---                    if s(N1) =/= empty /\ s(N2) =/= empty     
+---                     .
+
+--- [TESTS]
+--- red isResult(sq(1,1,8) sq(1,2,"*") sq(1,3,9) sq(1,4,72) G) .
+--- red isValid(sq(I,J,write(empty)) sq(I,J,1) G) .  
+--- red isValid(sq(1,1,3) sq(1,3,2) G) .             
+--- red isValid(initial) .
+--- red isResult(initial) .
+--- show search graph .
+--- show path 30 .
+--- search initial =>* G:Grid such that isValid(G:Grid) .                                         
+--- search initial =>* G:Grid such that isResult(G:Grid) .   
+--- search initial =>* G:Grid such that isValid(G:Grid) and isResult(G:Grid) .       
+--- rew [1] initial .               
+endm
+
