@@ -19,18 +19,18 @@ mod GRID is
     op write : Int  -> Int . --- Change the given number in one another
     
 
-    op isValid : Grid -> Bool . --- Check if a Row or a Column is valid (if contains thwo cells with the same number) .
+    op isValid : Grid -> Bool . --- Check if a Row or a Column is valid (if contains two cells with the same number) .
     op isResult : Grid -> Bool   . --- Check if the result of a Row or a Column is the one to reach .
     op initial : -> Grid  . --- Initial grid.
     
 
     vars I1 I2 I3 I4 I5 I6 J1 J2 J3 J4 J5 J6 : Nat . *** Coordinates
-    vars N1 N2 N3 N4 : NumberToinsert . *** I numeri possibili che si possono inserire. Sono tanti quante le celle "scrivibili".
+    vars N1 N2 N3 N4 : NumberToinsert . *** Possible numbers to insert. There are as many numbers as the "writable" cells.
     var G : Grid .
-    var R R2 : Nat . *** I risultati corrispondenti alle righe 1-3 ed alle colonne 1-3.
-    var O O2 : String . *** Gli operatori
+    var R R2 : Nat . *** The results of rows 1-3 and of columns 1-3.
+    var O O2 : String . *** Operators
 
-    *** Si scrive la prima cella ...
+    *** It writes the first cell ...
     ***  red isValid(write(sq(1,1,empty)) sq(1,3,1) G) .
 
     ceq write(N1) = 1
@@ -78,13 +78,13 @@ mod GRID is
    eq result(N1,"-",N2,"*",N3) = sd(N1,N2 * N3) .
    
 
-    --- Ritorna true se una delle due righe porta ad un risultato
+    --- Returns true if one of the two rows leads to result
   
     ceq isResult(sq(I1,J1,N1) sq(I1,J2,O) sq(I1,J3,N2) sq(I1,J4,O2) sq(I1,J5,N3) sq(I1,J6,R) G) = false 
         if result(N1,O,N2,O2,N3) =/= R  and  N1 <= 9 and N2 <= 9 and N3 <= 9  . 
 
    
-    --- Ritorna true se una delle due colonne porta ad un risultato
+    --- Returns true if one of the two columns leads to result
     ceq isResult(sq(I1,J1,N1) sq(I2,J1,O) sq(I3,J1,N2) sq(I4,J1,O2) sq(I5,J1,N3) sq(I6,J1,R)  G) = false 
         if result(N1,O,N2,O2,N3) =/= R and N1 <= 9 and N2 <= 9 and N3 <= 9   .
 
